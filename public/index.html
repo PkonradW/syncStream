@@ -2,7 +2,9 @@
 <html>
   <head>
     <title>Socket.IO chat</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
     <style>
+      /*
       body {
         margin: 0;
         padding-bottom: 3rem;
@@ -53,43 +55,39 @@
       #messages > li:nth-child(odd) {
         background: #efefef;
       }
+      */
     </style>
+    
   </head>
   <body>
-    <video id = "video" width="320" height="240" autoplay controls>
-      <source src = "/videos/video.mp4" type = "video/mp4">
+    <div class="container is-widescreen">
+      <div class="columns ">
+        <div class="column is-one-quarter">
+          <div id="messages"></div>
+          <form id="form">
+            <input id="input" type="text" placeholder="Type a message and hit ENTER">
+            <button id="send">Send</button>
+          </form>
+        </div>
+        <div class="column">
+          <video id = "video" width="100%" height="auto" controls>
+            <source src = "/videos/quoge.mp4" type = "video/mp4">
+          </video>
+        </div>
+      </div>
+    </div>
+    <!---
+    <video id = "video" width="320" height="240" controls>
+      <source src = "/videos/quoge.mp4" type = "video/mp4">
     </video>
     <ul id="messages"></ul>
     <form id="form" action="">
       <input id="input" autocomplete="off" /><button>Send</button>
     </form>
+    --->
     <script src="/socket.io/socket.io.js"></script>
     <script> var socket=io();</script>
     <script src="/scripts/messenger.js"></script>
     <script src="/scripts/videoEventEmitter.js"></script>
-    <!--
-    <script>
-        var socket = io();
-
-    var messages = document.getElementById('messages');
-    var form = document.getElementById('form');
-    var input = document.getElementById('input');
-
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      if (input.value) {
-        socket.emit('chat message', input.value);
-        input.value = '';
-      }
-    });
-
-    socket.on('chat message', function(msg) {
-      var item = document.createElement('li');
-      item.textContent = msg;
-      messages.appendChild(item);
-      window.scrollTo(0, document.body.scrollHeight);
-    });
-    </script>
--->
   </body>
 </html>
