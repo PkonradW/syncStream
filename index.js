@@ -10,22 +10,23 @@ const io = require('socket.io')(http);
 const port = process.env.PORT || 3000;
 const users = {};
 // create a timestamp variable
-let timeSinceSync = new Date().toLocaleTimeString();
-let currentTime = new Date().toLocaleTimeString();
+let timeSinceSync = new Date();
+let currentTime = new Date();
 // create a variable to store the current video duration
 var numUsers = 0;
+var masterTime = 0;
 
 app.use(express.static(path.join(__dirname, 'public')));
 
 io.on('connection', (socket) => { // create a new socket connection 
-    console.log('a user connected' + socket.id);
-        if (numUsers <=8) { // only allow 8 users to connect
-            socket.join('room1');
-        }
+    console.log('a user connected ' + socket.id);
+    io.emit('chat message', 'a user connected');
+
+
     socket.on('disconnect', () => { 
-        currentTime = new Date().toLocaleTimeString();
-        console.log('user disconnected' + currentTime);
-        timeSinceSync = new Date().toLocaleTimeString();
+        currentTime = new Date();
+        console.log('user disconnected ' + currentTime.toLocaleString());
+        timeSinceSync = new Date();
     });
     socket.on('chat message', msg => { // listen for chat message
         io.emit('chat message', msg); // send message to all users
@@ -33,13 +34,26 @@ io.on('connection', (socket) => { // create a new socket connection
     socket.on('video loaded', () => { // listen for video loaded 
         console.log('client loaded video'); // 
     });
-    socket.on('video playing', () => {
-        console.log('client playing video');
-        io.emit('play video');
+    socket.on('video playing', time => {
+        currentTime = new Date();
+        console.log('client started video' + currentTime.toLocaleString());
+        timeSinceSync = currentTime - timeSinceSync;
+        io.emit('play', masterTime);
     });
     socket.on('video paused', time => {
-        console.log('client paused video');
-        io.emit('pause video', time);
+        currentTime = new Date();
+        console.log('client paused video at' + time);
+        timeSinceSync = currentTime - timeSinceSync;
+        console.log("time since sync: " + timeSinceSync.toLocaleString() + " milliseconds");
+        if (timeSinceSync > 50) {
+            console.log("pausing and syncing");
+            masterTime = time;
+            io.emit('pause video', masterTime);
+        } else {
+            console.log("not syncing video");
+        }
+        timeSinceSync = new Date();
+        console.log("");
     });
 
 });

@@ -7,8 +7,8 @@ video.addEventListener('loadeddata', function(e) {
         socket.emit('video loaded');
     }
 });
-video.addEventListener('play', function(e) {
-    socket.emit('video playing', );
+video.addEventListener('play', function(time) {
+    socket.emit('video playing', video.currentTime);
 });
 
 // create an event listener for pausing the video
@@ -17,12 +17,11 @@ video.addEventListener('pause', function(e) {
 });
 
 socket.on('pause video', function(time) {
-    video.currentTime = time;
     video.pause();
+    video.currentTime = time;
 });
-socket.on('play video', () => {
+socket.on('play', function(time) {
     // if video is loaded, play it
-    if (video.readyState === 4) {
-        video.play(time);
-    }
+    //video.fastSeek(time);
+    video.play();
 });
