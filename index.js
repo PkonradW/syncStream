@@ -2,7 +2,7 @@ const { time } = require('console');
 const express = require('express');
 const path = require('path');
 
-const app = require('express')();
+const app = express();
 const http = require('http').Server(app);
 // new instance of socket.io initialized by passing
 // the 'server' object. Then you listen on the connection event
@@ -14,14 +14,20 @@ let timeSinceSync = new Date().toLocaleTimeString();
 let currentTime = new Date().toLocaleTimeString();
 // create a variable to store the current video duration
 var numUsers = 0;
-
-app.use(express.static(path.join(__dirname, 'public')));
+app.get('/', function(req, res) {
+  res.send(path.join(__dirname, 'public'));
+});
+app.listen(port);
+console.log('Server started at http://localhost:' + port);
 
 io.on('connection', (socket) => { // create a new socket connection 
     console.log('a user connected' + socket.id);
-        if (numUsers <=8) { // only allow 8 users to connect
-            socket.join('room1');
-        }
+		
+		socket.on('join room', (args) => { 
+			if (numUsers <=8) { // only allow 8 users to connect
+				socket.join(args);
+		}
+			});
     socket.on('disconnect', () => { 
         currentTime = new Date().toLocaleTimeString();
         console.log('user disconnected' + currentTime);
@@ -44,7 +50,4 @@ io.on('connection', (socket) => { // create a new socket connection
 
 });
 
-// broadcast to all
-http.listen(port, () => {
-    console.log('listening on ' + port);
-});
+
