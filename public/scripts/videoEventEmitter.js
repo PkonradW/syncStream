@@ -15,9 +15,9 @@ video.addEventListener('play', function(time) {
 
 // create an event listener for pausing the video
 video.addEventListener('pause', function(e) {
-    if (!sync) {
-        socket.emit('video paused', video.currentTime);
-    }
+    
+    socket.emit('video paused', video.currentTime);
+    
 });
 
 socket.on('pause video', function(time) {
@@ -34,7 +34,4 @@ socket.on('sync', function(time) {
     video.currentTime = time;
     video.play();
     sync = false;
-});
-socket.on('syncTime', function(e) {
-    socket.emit(video.currentTime);
 });
