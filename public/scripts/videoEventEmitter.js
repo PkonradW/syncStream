@@ -24,9 +24,7 @@ socket.on('pause video', function(time) {
     video.pause();
     video.currentTime = time;
 });
-socket.on('play', function(e) {
-    // if video is loaded, play it
-    //video.fastSeek(time);
+socket.on('play', () => {
     video.play();
 });
 socket.on('sync', function(time) {
