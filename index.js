@@ -13,11 +13,9 @@ var users = [];
 let timeSinceSync = new Date();
 let currentTime = new Date();
 var elapsedTime;
-var lastKnownSeek = 0;
+var lastKnownSeek = 0; // in seconds, relates to video.currentTime
 // create a variable to store the current video duration
 var numUsers = 0;
-var masterTime = 0;
-var timeMaster;
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -35,14 +33,11 @@ io.on('connection', (socket) => { // create a new socket connection
     socket.on('video loaded', () => { // listen for video loaded 
         console.log('client loaded video'); // 
     });
-    socket.on('video playing', () => {
+    socket.on('video playing', time => {
+        lastKnownSeek = time;
         currentTime = new Date();
         console.log('client started video' + currentTime.toLocaleString());
         io.emit('play');
-        if (!timeMaster) {
-            timeMaster = socket.id;
-            console.log('The Time Master is ' + timeMaster);
-        }
         timeSinceSync = new Date();
     });
     socket.on('video paused', time => {
@@ -53,8 +48,6 @@ io.on('connection', (socket) => { // create a new socket connection
         if (elapsedTime > 50) {
             console.log("pause/sync initiated by " + socket.id); 
             lastKnownSeek = time;
-            timeMaster = socket.id;
-            console.log("The Time Master is " + timeMaster);
             io.emit('pause video', lastKnownSeek);
         } else {
             console.log("not syncing video");
@@ -70,11 +63,9 @@ io.on('connection', (socket) => { // create a new socket connection
         lastKnownSeek += elapsedTime;
         io.to(socket.id).emit('sync', lastKnownSeek);
         console.log("elapsedTime: " + elapsedTime);
-        
     });
     
-
-});
+}); // end of server
 
 // broadcast to all
 http.listen(port, () => {
